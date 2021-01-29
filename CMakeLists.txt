@@ -69,3 +69,14 @@ file(GLOB helloworld_SRC
     "*.cpp"
 )
 
+file(GLOB testproject
+   
+    "MainTest.cpp"
+)
+
+
+add_executable(TestProject ${testproject})
+
+target_link_libraries(TestProject
+	PUBLIC ${ALL_LIBS}
+)
