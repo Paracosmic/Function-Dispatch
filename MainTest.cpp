@@ -28,6 +28,7 @@ int main()
 	Virtual_Function_Util.Reflect_Static_Function("static-test", static_test_func, {});
 	Virtual_Function_Util.Reflect_Static_Function("static-test-int", static_test_func_int_param, {});
 
+	//declare an instance of Foo
 	Foo f;
 	//Reflect member functions
 	Virtual_Function_Util.Reflect_Member_Function("member-test",f, &Foo::member_test_func, {});
