@@ -10,6 +10,10 @@
 //
 #include <iostream>
 #include <string>
+
+#include "VirtualVariable.h"
+
+
 void static_test_func() { std::cout << "STATIC TEST FUNCTION SUCCESS" << std::endl; };
 void static_test_func_int_param(int i) { std::cout << "STATIC TEST FUNCTION SUCCESS " << i  << std::endl; };
 
@@ -42,6 +46,38 @@ int main()
 	Virtual_Function_Util.TryExecute("member-test");
 	Virtual_Function_Util.TryExecute("member-test-int 1337");
 
+	VirtualVarible<int> a = 9;
+	v_int b = 69;
+
+	//can assign name here, harder to read though
+	v_int c = { "VariableC", 1337 };
+
+	//container for maps
+	Primitives p;
+
+	//also valid
+	IntMap intmap;
+	//get map for int
+	auto& map = p.IntMap;
+
+	//type deduction here?
+	map.Add("VariableA", a);
+
+	//note that VariableA and VariableB are in seperate maps!!!
+	intmap.Add("VariableB", b);
+
+	intmap.Add(c);
+	 //access the built in the mapped variable
+	int& a_ref = **p.IntMap.Map["VariableA"];
+
+	//access the user defined mapped variable
+	int& b_ref = **intmap.Map["VariableB"]; 
+
+
+	//access the user defined mapped variable with the name assigned at initialization (safer)
+	int& c_ref = **intmap.Map["VariableC"];
+	//test to see if we actually get the value
+	std::cout << a_ref << " - " << b_ref << " - " << c_ref << std::endl;
 
 	//function command loop
 	//type the name of the function and the parameter values
