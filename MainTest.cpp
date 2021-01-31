@@ -47,18 +47,18 @@ int main()
 	*/
 
 	//Reflect static functions
-	ReflectGlobalStatic(v, static_test)
-	ReflectGlobalStatic(v, static_test_int)
-	ReflectGlobalStatic(v, static_test_int_double)
-	ReflectStatic(v, Foo,f)
+	ReflectGlobalStatic(v, static_test);
+	ReflectGlobalStatic(v, static_test_int);
+	ReflectGlobalStatic(v, static_test_int_double);
+	ReflectStatic(v, Foo, f);
 
 	//declare an instance of Foo
 	Foo f;
 
 	//Reflect member functions
-	ReflectMember(v, Primitives, p, print)
-	ReflectMember(v,		Foo, f, member_test)
-	ReflectMember(v,		Foo, f, member_test_int)
+	ReflectMember(v, Primitives, p, print);
+	ReflectMember(v, Foo, f, member_test);
+	ReflectMember(v, Foo, f, member_test_int);
 
 	///try to execute function
 	//static
@@ -75,11 +75,11 @@ int main()
 	v_string s = "a";
 
 
-	ReflectVariable( p , a)
-	ReflectVariable( p , b)
-	ReflectVariable( p , c)
-	ReflectVariable( p , d)
-	ReflectVariable( p , s)
+	ReflectVariable(p, a);
+	ReflectVariable(p, b);
+	ReflectVariable(p, c);
+	ReflectVariable(p, d);
+	ReflectVariable(p, s);
 
 
 	v.TryExecute("static_test_int_double 3 4.5");

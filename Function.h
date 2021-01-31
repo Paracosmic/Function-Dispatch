@@ -3,13 +3,12 @@
 #include <vector>
 #include <tuple>
 #include <string>
-#include "MetaFunction.h"
 #include "FunctionHandle.h"
 #include "VirtualVariable.h"
 
-#define ReflectMember(V,CType,cl,F) 		V.Reflect_Member_Function(GenName(F),cl,&CType::F,{});
-#define ReflectGlobalStatic(V,F) 		V.Reflect_Static_Function(GenName(F),F,{});
-#define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{});
+#define ReflectMember(V,CType,cl,F) 		V.Reflect_Member_Function(GenName(F),cl,&CType::F,{})
+#define ReflectGlobalStatic(V,F) 		V.Reflect_Static_Function(GenName(F),F,{})
+#define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{})
 class VirtualFunctionUtility
 {
 public:

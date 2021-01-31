@@ -6,7 +6,7 @@
 #include <algorithm>
 #define GenName(VariableName) # VariableName
 
-#define ReflectVariable(P, V) P.Add(GenName(V), V);
+#define ReflectVariable(P, V) P.Add(GenName(V), V)
 
 	template<typename T>
 	struct VirtualVarible
