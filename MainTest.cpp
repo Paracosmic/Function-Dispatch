@@ -14,14 +14,22 @@
 #include "VirtualVariable.h"
 
 
-void static_test_func() { std::cout << "STATIC TEST FUNCTION SUCCESS" << std::endl; };
-void static_test_func_int_param(int i) { std::cout << "STATIC TEST FUNCTION SUCCESS " << i  << std::endl; };
+void static_test() { std::cout << "STATIC TEST FUNCTION SUCCESS" << std::endl; };
+void static_test_int(int i) { std::cout << "STATIC TEST FUNCTION SUCCESS " << i  << std::endl; };
+
+void static_test_int_double(int i, double d) { 
+	std::cout << d << " STATIC TEST FUNCTION SUCCESS " << i << std::endl; 
+};
 
 class Foo 
 {
 public:
-	void member_test_func() { std::cout << "MEMBER TEST FUNCTION SUCCESS" << std::endl; };
-	void member_test_func_int_param(int i) { std::cout << "MEMBER TEST FUNCTION SUCCESS " << i << std::endl; };
+	void member_test() { std::cout << "MEMBER TEST FUNCTION SUCCESS" << std::endl; };
+	void member_test_int(int i) { std::cout << "MEMBER TEST FUNCTION SUCCESS " << i << std::endl; };
+	static void f() 
+	{
+		std::cout << "FFFFFFFFFFFFFFFF" << std::endl;
+	};
 
 };
 int main() 
@@ -29,66 +37,60 @@ int main()
 	//container for maps
 	Primitives p;
 
-	VirtualFunctionUtility Virtual_Function_Util = VirtualFunctionUtility(p.IntMap);
+	VirtualFunctionUtility Virtual_Function_Util = VirtualFunctionUtility(p);
 	//Reflect static functions
-	Virtual_Function_Util.Reflect_Static_Function("static-test", static_test_func, {});
-	Virtual_Function_Util.Reflect_Static_Function("static-test-int", static_test_func_int_param, {});
+
+	ReflectGlobalStatic(Virtual_Function_Util, static_test)
+	///Virtual_Function_Util.Reflect_Static_Function(GenName(static_test), static_test, {});
+	ReflectGlobalStatic(Virtual_Function_Util, static_test_int)
+	ReflectGlobalStatic(Virtual_Function_Util, static_test_int_double)
+	ReflectStatic(Virtual_Function_Util, Foo,f)
 
 	//declare an instance of Foo
 	Foo f;
+
 	//Reflect member functions
-	Virtual_Function_Util.Reflect_Member_Function("member-test",f, &Foo::member_test_func, {});
-	Virtual_Function_Util.Reflect_Member_Function("member-test-int",f, &Foo::member_test_func_int_param, {});
+	ReflectMember(Virtual_Function_Util, Primitives, p, print)
+	ReflectMember(Virtual_Function_Util,		Foo, f, member_test)
+	ReflectMember(Virtual_Function_Util,		Foo, f, member_test_int)
 
 	///try to execute function
 	//static
-	Virtual_Function_Util.TryExecute("static-test");
-	Virtual_Function_Util.TryExecute("static-test-int 1337");
+	Virtual_Function_Util.TryExecute("static_test");
+	Virtual_Function_Util.TryExecute("static_test_int 1337");
 	//member
-	Virtual_Function_Util.TryExecute("member-test");
-	Virtual_Function_Util.TryExecute("member-test-int 1337");
+	Virtual_Function_Util.TryExecute("member_test");
+	Virtual_Function_Util.TryExecute("member_test_int 1337");
 
-	VirtualVarible<int> a = 9;
-
-
+	v_int a = 9;
 	v_int b = 69;
+	v_int c =  1337;
+	v_double d = 7.009;
+	v_string s = "Normal string!";
 
-	//can assign name here, harder to read though
-	v_int c = { "VariableC", 1337 };
+	ReflectVariable( p , a)
+	ReflectVariable( p , b)
+	ReflectVariable( p , c)
+	ReflectVariable( p , d)
+	ReflectVariable( p , s)
 
-	
+	//why is value $a null?
+	Virtual_Function_Util.TryExecute("static_test_int_double 3 4.5");
 
-	//also valid
-	IntMap intmap;
-	//get map for int
-	auto& map = p.IntMap;
+	Virtual_Function_Util.TryExecute("static_test_int_double 2 $d");
 
-	//type deduction here?
-	map.Add("VariableA", a);
-
-	//note that VariableA and VariableB are in seperate maps!!!
-	map.Add("VariableB", b);
-
-	intmap.Add(c);
-	 //access the built in the mapped variable
-	int& a_ref = **p.IntMap.Map["VariableA"];
-
-	//access the user defined mapped variable
-	int& b_ref = **p.IntMap.Map["VariableB"]; 
+	Virtual_Function_Util.TryExecute("static_test_int_double $a 5.75");
 
 
-	//access the user defined mapped variable with the name assigned at initialization (safer)
-	int& c_ref = **intmap.Map["VariableC"];
-	//test to see if we actually get the value
-	std::cout << a_ref << " - " << b_ref << " - " << c_ref << std::endl;
+	Virtual_Function_Util.TryExecute("print a");
+
+	Virtual_Function_Util.TryExecute("f");
 
 	//function command loop
 	//type the name of the function and the parameter values
-
-
-	Virtual_Function_Util.TryExecute("static-test-int $VariableA");
 	while(true)
 	{ 
+		std::cout << std::endl;
 		std::string input;		
 		std::getline ( std::cin, input);
 		Virtual_Function_Util.TryExecute(input);

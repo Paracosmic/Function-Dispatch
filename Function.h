@@ -7,19 +7,22 @@
 #include "FunctionHandle.h"
 #include "VirtualVariable.h"
 
+#define ReflectMember(V,CType,cl,F) 		V.Reflect_Member_Function(GenName(F),cl,&CType::F,{});
+#define ReflectGlobalStatic(V,F) 		V.Reflect_Static_Function(GenName(F),F,{});
+#define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{});
 class VirtualFunctionUtility
 {
 public:
 
 	std::vector<std::shared_ptr<FunctionHandle>> function_container;
 	std::map<std::string, std::shared_ptr<FunctionHandle>> function_map;
-	VirtualFunctionUtility(IntMap& maptest) : imap(maptest){};
+	VirtualFunctionUtility(Primitives& maptest) : primitives(maptest) {};
 
 	bool find(std::string& name);
 
-	IntMap& imap;
+	
 
-
+	Primitives& primitives;
 
 
 	template< typename F, typename... Args>
@@ -35,6 +38,7 @@ public:
 	{
 		return Reflect_Member_Function_impl(function_container, name, c, f, parameter_info);
 	};
+
 
 
 
@@ -152,8 +156,12 @@ public:
 			if (token[0] == '$')
 			{
 				std::string var_name = token.substr(1,token.size());
-				token = std::to_string(**imap.Map[var_name]);
-				int i = **imap.Map[var_name];
+
+
+
+				token = primitives.TryGet(var_name);
+
+			//	std::cout << "";
 
 
 			}
