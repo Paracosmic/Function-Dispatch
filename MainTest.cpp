@@ -1,5 +1,5 @@
 
-#include "CaptureFunction.h"
+
 #include "Function.h"
 #include "FunctionHandle.h"
 //
@@ -73,18 +73,19 @@ int main()
 	v_int c =  1337;
 	v_double d = 7.009;
 	v_string s = "a";
-	v_string e = "s";
+
 
 	ReflectVariable( p , a)
 	ReflectVariable( p , b)
 	ReflectVariable( p , c)
 	ReflectVariable( p , d)
 	ReflectVariable( p , s)
-	ReflectVariable(p, e)
+
 
 	v.TryExecute("static_test_int_double 3 4.5");
 	v.TryExecute("static_test_int_double 2 $d");
 	v.TryExecute("static_test_int_double $a 5.75");
+	//prints the value of the variable that s is set to which isa, so it returns 9
 	v.TryExecute("print $s");
 	v.TryExecute("f");
  
