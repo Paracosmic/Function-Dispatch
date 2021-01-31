@@ -26,8 +26,10 @@ public:
 };
 int main() 
 {
+	//container for maps
+	Primitives p;
 
-	VirtualFunctionUtility Virtual_Function_Util;
+	VirtualFunctionUtility Virtual_Function_Util = VirtualFunctionUtility(p.IntMap);
 	//Reflect static functions
 	Virtual_Function_Util.Reflect_Static_Function("static-test", static_test_func, {});
 	Virtual_Function_Util.Reflect_Static_Function("static-test-int", static_test_func_int_param, {});
@@ -47,13 +49,14 @@ int main()
 	Virtual_Function_Util.TryExecute("member-test-int 1337");
 
 	VirtualVarible<int> a = 9;
+
+
 	v_int b = 69;
 
 	//can assign name here, harder to read though
 	v_int c = { "VariableC", 1337 };
 
-	//container for maps
-	Primitives p;
+	
 
 	//also valid
 	IntMap intmap;
@@ -64,14 +67,14 @@ int main()
 	map.Add("VariableA", a);
 
 	//note that VariableA and VariableB are in seperate maps!!!
-	intmap.Add("VariableB", b);
+	map.Add("VariableB", b);
 
 	intmap.Add(c);
 	 //access the built in the mapped variable
 	int& a_ref = **p.IntMap.Map["VariableA"];
 
 	//access the user defined mapped variable
-	int& b_ref = **intmap.Map["VariableB"]; 
+	int& b_ref = **p.IntMap.Map["VariableB"]; 
 
 
 	//access the user defined mapped variable with the name assigned at initialization (safer)
@@ -81,6 +84,9 @@ int main()
 
 	//function command loop
 	//type the name of the function and the parameter values
+
+
+	Virtual_Function_Util.TryExecute("static-test-int $VariableA");
 	while(true)
 	{ 
 		std::string input;		

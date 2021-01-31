@@ -5,7 +5,7 @@
 #include <string>
 #include "MetaFunction.h"
 #include "FunctionHandle.h"
-
+#include "VirtualVariable.h"
 
 class VirtualFunctionUtility
 {
@@ -13,11 +13,11 @@ public:
 
 	std::vector<std::shared_ptr<FunctionHandle>> function_container;
 	std::map<std::string, std::shared_ptr<FunctionHandle>> function_map;
-	VirtualFunctionUtility() {};
+	VirtualFunctionUtility(IntMap& maptest) : imap(maptest){};
 
 	bool find(std::string& name);
 
-
+	IntMap& imap;
 
 
 
@@ -141,7 +141,25 @@ public:
 		return tokens;
 
 	};
+	
 
+	void FindAndReplaceVirtualVariables(std::vector<std::string>& tokens)
+	{
+		//check each token
+		for (auto& token : tokens)
+		{
+			//is a virtual variable
+			if (token[0] == '$')
+			{
+				std::string var_name = token.substr(1,token.size());
+				token = std::to_string(**imap.Map[var_name]);
+				int i = **imap.Map[var_name];
+
+
+			}
+		}
+	
+	}
 	//deprecated
 	const void Execute(const std::string& command)
 	{
@@ -202,6 +220,8 @@ public:
 		//First break the string up into tokens 
 		std::vector<std::string> tokens = Tokenize(command);
 
+		FindAndReplaceVirtualVariables(tokens);
+		
 		//token[0] is standard for the function name
 		//store this in a string for later
 		std::string name = tokens[0];
