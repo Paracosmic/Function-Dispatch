@@ -37,54 +37,57 @@ int main()
 	//container for maps
 	Primitives p;
 
-	VirtualFunctionUtility Virtual_Function_Util = VirtualFunctionUtility(p);
-	//Reflect static functions
+	VirtualFunctionUtility v = VirtualFunctionUtility(p);
 
-	ReflectGlobalStatic(Virtual_Function_Util, static_test)
-	///Virtual_Function_Util.Reflect_Static_Function(GenName(static_test), static_test, {});
-	ReflectGlobalStatic(Virtual_Function_Util, static_test_int)
-	ReflectGlobalStatic(Virtual_Function_Util, static_test_int_double)
-	ReflectStatic(Virtual_Function_Util, Foo,f)
+
+	/*
+	Virtual_Function_Util.Reflect_Static_Function(GenName(static_test), static_test, {});
+	is th same as 
+	ReflectGlobalStatic(v, static_test)
+	*/
+
+	//Reflect static functions
+	ReflectGlobalStatic(v, static_test)
+	ReflectGlobalStatic(v, static_test_int)
+	ReflectGlobalStatic(v, static_test_int_double)
+	ReflectStatic(v, Foo,f)
 
 	//declare an instance of Foo
 	Foo f;
 
 	//Reflect member functions
-	ReflectMember(Virtual_Function_Util, Primitives, p, print)
-	ReflectMember(Virtual_Function_Util,		Foo, f, member_test)
-	ReflectMember(Virtual_Function_Util,		Foo, f, member_test_int)
+	ReflectMember(v, Primitives, p, print)
+	ReflectMember(v,		Foo, f, member_test)
+	ReflectMember(v,		Foo, f, member_test_int)
 
 	///try to execute function
 	//static
-	Virtual_Function_Util.TryExecute("static_test");
-	Virtual_Function_Util.TryExecute("static_test_int 1337");
+	v.TryExecute("static_test");
+	v.TryExecute("static_test_int 1337");
 	//member
-	Virtual_Function_Util.TryExecute("member_test");
-	Virtual_Function_Util.TryExecute("member_test_int 1337");
+	v.TryExecute("member_test");
+	v.TryExecute("member_test_int 1337");
 
 	v_int a = 9;
 	v_int b = 69;
 	v_int c =  1337;
 	v_double d = 7.009;
-	v_string s = "Normal string!";
+	v_string s = "a";
+	v_string e = "s";
 
 	ReflectVariable( p , a)
 	ReflectVariable( p , b)
 	ReflectVariable( p , c)
 	ReflectVariable( p , d)
 	ReflectVariable( p , s)
+	ReflectVariable(p, e)
 
-	//why is value $a null?
-	Virtual_Function_Util.TryExecute("static_test_int_double 3 4.5");
-
-	Virtual_Function_Util.TryExecute("static_test_int_double 2 $d");
-
-	Virtual_Function_Util.TryExecute("static_test_int_double $a 5.75");
-
-
-	Virtual_Function_Util.TryExecute("print a");
-
-	Virtual_Function_Util.TryExecute("f");
+	v.TryExecute("static_test_int_double 3 4.5");
+	v.TryExecute("static_test_int_double 2 $d");
+	v.TryExecute("static_test_int_double $a 5.75");
+	v.TryExecute("print $s");
+	v.TryExecute("f");
+ 
 
 	//function command loop
 	//type the name of the function and the parameter values
@@ -93,7 +96,7 @@ int main()
 		std::cout << std::endl;
 		std::string input;		
 		std::getline ( std::cin, input);
-		Virtual_Function_Util.TryExecute(input);
+		v.TryExecute(input);
 	
 	}
 
