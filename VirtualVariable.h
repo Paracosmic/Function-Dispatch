@@ -4,6 +4,7 @@
 #include <tuple>
 #include <string>
 #include <algorithm>
+#include <sstream> 
 #define GenName(VariableName) # VariableName
 
 #define ReflectVariable(P, V) P.Add(GenName(V), V)
@@ -22,10 +23,13 @@
 		VirtualVarible(std::string name, T value) : Name(name),Default(value), Pointer(&Default) { };
 	};
 	typedef VirtualVarible<int> v_int;
+	typedef VirtualVarible<int*> v_int_ptr;
 	typedef VirtualVarible<double> v_double;
 	typedef VirtualVarible<float> v_float;
 	typedef VirtualVarible<bool> v_bool;
 	typedef VirtualVarible<std::string> v_string;
+
+
 
 	template<typename T>
 	struct VirtualVaribleMap
@@ -63,23 +67,35 @@
 	};
 
 
-	typedef VirtualVaribleMap<int> IntMap;
-	typedef VirtualVaribleMap<float> FloatMap;
-	typedef VirtualVaribleMap<double> DoubleMap;
-	typedef VirtualVaribleMap<bool> BoolMap;
-	typedef VirtualVaribleMap<std::string> StringMap; 
 	//bad name
 	//allows for setting values and binding variables to one another through the console via string tokens
+
+
+
+typedef int type_id;
+
 class Primitives
 {
 public:
-	enum class PrimitiveType{INT,FLOAT,DOUBLE,BOOL,STRING};
+	
+	 virtual enum class PrimitiveType{INT,INT_PTR,FLOAT,DOUBLE,BOOL,STRING};
+	 struct type_info
+	 {
+		 type_id INT;
+		 type_id INT_PTR;
+		 type_id FLOAT;
+		 type_id DOUBLE;
+		 type_id BOOL;
+		 type_id STRING;
+	 };
 	//primitives pre-defined
 	VirtualVaribleMap<int> IntMap;
+	VirtualVaribleMap<int*> IntPtrMap;
 	VirtualVaribleMap<float> FloatMap;
 	VirtualVaribleMap<double> DoubleMap;
 	VirtualVaribleMap<bool> BoolMap;
 	VirtualVaribleMap<std::string> StringMap;
+
 	std::map<std::string,PrimitiveType> VariableNames;
 	bool NameIsAvailable(std::string name) 
 	{
@@ -141,6 +157,15 @@ public:
 	
 	}
 	};
+	template<> void Add(std::string name, v_int_ptr& type)
+	{
+		if (NameIsAvailable(name)) {
+			type.Name = name;
+			VariableNames.emplace(name, PrimitiveType::INT_PTR);
+			this->IntPtrMap.Add(name, type);
+
+		}
+	};
 	template<> void Add(std::string name, v_double& type)
 	{
 		if (NameIsAvailable(name))
@@ -174,7 +199,7 @@ public:
 		}
 	};
 
-	std::string TryGet(std::string name)
+	virtual std::string TryGet(std::string name)
 	{
 		if (!NameIsAvailable(name))
 		{
@@ -192,6 +217,18 @@ public:
 			{ 
 			//	std::cout << std::endl;
 				return std::to_string(IntMap.Get(name));
+				break;
+			}
+			case PrimitiveType::INT_PTR:
+			{
+				//returns address address
+			//	const void* address = IntPtrMap.Get(name);
+			//	std::stringstream ss;
+			//	ss << address;
+			//	return ss.str();
+	
+				return std::to_string(*IntPtrMap.Get(name));
+				
 				break;
 			}
 			case PrimitiveType::BOOL:
@@ -226,4 +263,26 @@ public:
 		std::cout << TryGet(n) << std::endl;;
 	}
 	//TODO add pointer/ref types in addition to value primitives
+
+
+
+};
+//Test Class for expanding primitives WIP
+class Test : public Primitives 
+{
+	 enum class PrimitiveType { INT, INT_PTR, FLOAT, DOUBLE, BOOL, STRING};
+	 VirtualVaribleMap<int*> IntPtrMap;
+
+	 template<v_int_ptr&> void Add(std::string name, v_int_ptr& type)
+	 {
+		 if (NameIsAvailable(name)) {
+			 type.Name = name;
+			 VariableNames.emplace(name, PrimitiveType::INT_PTR);
+			 this->IntPtrMap.Add(name, type);
+
+		 }
+	 };
+
+
+
 };

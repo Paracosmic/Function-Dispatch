@@ -32,7 +32,9 @@ public:
 	};
 
 };
-v_int static_a = 9;
+
+v_int static_variable = 12345;
+
 int main() 
 {
 	//container for maps
@@ -73,20 +75,22 @@ int main()
 	v_int b = 69;
 	v_int c =  1337;
 	v_double d = 7.009;
-	v_string s = "a";
-
-	ReflectVariable(p, static_a);
+	v_int_ptr ptr = &a.Default;
+	v_string s = "ptr";
+	
+	ReflectVariable(p, static_variable);
 	ReflectVariable(p, a);
 	ReflectVariable(p, b);
 	ReflectVariable(p, c);
 	ReflectVariable(p, d);
 	ReflectVariable(p, s);
+	ReflectVariable(p, ptr);
 
 
 	v.TryExecute("static_test_int_double 3 4.5");
 	v.TryExecute("static_test_int_double 2 $d");
 	v.TryExecute("static_test_int_double $a 5.75");
-	//prints the value of the variable that s is set to which isa, so it returns 9
+	//prints the value of the variable that s is set to which is s whic has the value set to ptr, so it returns 9
 	v.TryExecute("print $s");
 
 	v.TryExecute("static_member_function");
