@@ -42,13 +42,10 @@ add_definitions(
 
 add_library(FuncLib STATIC 
 FunctionHandle.h 
-IVirtualFunctional.h 
-MetaFunction.h
 ToString.h
 TransformArgument.h
 TupleString.h
 TupleUtility.h
-CaptureFunction.h
 Function.cpp
 Function.h
 Function_Tuple.h 

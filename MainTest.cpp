@@ -26,12 +26,13 @@ class Foo
 public:
 	void member_test() { std::cout << "MEMBER TEST FUNCTION SUCCESS" << std::endl; };
 	void member_test_int(int i) { std::cout << "MEMBER TEST FUNCTION SUCCESS " << i << std::endl; };
-	static void f() 
+	static void static_member_function() 
 	{
-		std::cout << "FFFFFFFFFFFFFFFF" << std::endl;
+		std::cout << "Static Member Function!" << std::endl;
 	};
 
 };
+v_int static_a = 9;
 int main() 
 {
 	//container for maps
@@ -50,7 +51,7 @@ int main()
 	ReflectGlobalStatic(v, static_test);
 	ReflectGlobalStatic(v, static_test_int);
 	ReflectGlobalStatic(v, static_test_int_double);
-	ReflectStatic(v, Foo, f);
+	ReflectStatic(v, Foo, static_member_function);
 
 	//declare an instance of Foo
 	Foo f;
@@ -74,7 +75,7 @@ int main()
 	v_double d = 7.009;
 	v_string s = "a";
 
-
+	ReflectVariable(p, static_a);
 	ReflectVariable(p, a);
 	ReflectVariable(p, b);
 	ReflectVariable(p, c);
@@ -87,7 +88,8 @@ int main()
 	v.TryExecute("static_test_int_double $a 5.75");
 	//prints the value of the variable that s is set to which isa, so it returns 9
 	v.TryExecute("print $s");
-	v.TryExecute("f");
+
+	v.TryExecute("static_member_function");
  
 
 	//function command loop
