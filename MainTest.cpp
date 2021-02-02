@@ -38,16 +38,12 @@ v_int static_variable = 12345;
 int main() 
 {
 	//container for maps
-	Primitives p;
+	Test t;
+	Primitives& p = t;
 
 	VirtualFunctionUtility v = VirtualFunctionUtility(p);
 
 
-	/*
-	Virtual_Function_Util.Reflect_Static_Function(GenName(static_test), static_test, {});
-	is th same as 
-	ReflectGlobalStatic(v, static_test)
-	*/
 
 	//Reflect static functions
 	ReflectGlobalStatic(v, static_test);
@@ -60,6 +56,8 @@ int main()
 
 	//Reflect member functions
 	ReflectMember(v, Primitives, p, print);
+	ReflectMember(v, VirtualFunctionUtility, v, PrintFunctions);
+
 	ReflectMember(v, Foo, f, member_test);
 	ReflectMember(v, Foo, f, member_test_int);
 
@@ -78,19 +76,21 @@ int main()
 	v_int_ptr ptr = &a.Default;
 	v_string s = "ptr";
 	
-	ReflectVariable(p, static_variable);
-	ReflectVariable(p, a);
-	ReflectVariable(p, b);
-	ReflectVariable(p, c);
-	ReflectVariable(p, d);
-	ReflectVariable(p, s);
-	ReflectVariable(p, ptr);
+	ReflectVariable(t, static_variable);
+	ReflectVariable(t, a);
+	ReflectVariable(t, b);
+	ReflectVariable(t, c);
+	ReflectVariable(t, d);
+	ReflectVariable(t, s);
+	ReflectVariable(t, ptr);
 
 
 	v.TryExecute("static_test_int_double 3 4.5");
 	v.TryExecute("static_test_int_double 2 $d");
 	v.TryExecute("static_test_int_double $a 5.75");
-	//prints the value of the variable that s is set to which is s whic has the value set to ptr, so it returns 9
+	//prints the value of the variable that s.
+	//the value of s is an int pointer named ptr
+	//ptr points to a which is the value of 9
 	v.TryExecute("print $s");
 
 	v.TryExecute("static_member_function");

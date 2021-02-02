@@ -210,7 +210,7 @@ public:
 		else if (found == function_map.end())
 		{
 
-			std::string errout = name; errout.append(" is an invalid function.");
+			std::string errout = name; errout.append(" is an invalid function.\n");
 			out_log.append(errout);
 
 		}
@@ -224,6 +224,7 @@ public:
 	*/
 	const bool TryExecute(const std::string& command)
 	{
+
 		//First break the string up into tokens 
 		std::vector<std::string> tokens = Tokenize(command);
 
@@ -252,7 +253,7 @@ public:
 		else if (found == function_map.end())
 		{
 
-			std::string errout = name; errout.append(" is an invalid function.");
+			std::string errout = name; errout.append(" is an invalid function.\n");
 			std::cout << errout;
 		}
 		return false;
