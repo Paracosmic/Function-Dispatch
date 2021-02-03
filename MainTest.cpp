@@ -48,7 +48,7 @@ int main()
 	//Reflect static functions
 	ReflectGlobalStatic(v, static_test);
 	ReflectGlobalStatic(v, static_test_int);
-	ReflectGlobalStatic(v, static_test_int_double);
+	size_t index = ReflectGlobalStatic(v, static_test_int_double);
 	ReflectStatic(v, Foo, static_member_function);
 
 	//declare an instance of Foo
@@ -88,6 +88,7 @@ int main()
 	v.TryExecute("static_test_int_double 3 4.5");
 	v.TryExecute("static_test_int_double 2 $d");
 	v.TryExecute("static_test_int_double $a 5.75");
+
 	//prints the value of the variable that s.
 	//the value of s is an int pointer named ptr
 	//ptr points to a which is the value of 9
@@ -95,6 +96,15 @@ int main()
 
 	v.TryExecute("static_member_function");
  
+	//get a handle for the function with the index obtained when reflecting the function
+	FunctionHandle* cached_function = v.function_container[index].get();
+	cached_function->CallFunctionWithCachedArguments();
+	//Call function with previously parameters
+
+	//reflect this function
+	ReflectMember_Name(v, FunctionHandle, *cached_function,"cf", CallFunctionWithCachedArguments);
+	//call the function 
+	v.TryExecute("cf");
 
 	//function command loop
 	//type the name of the function and the parameter values

@@ -27,7 +27,7 @@ public:
 	size_t class_size = 0;
 	virtual void CallFunction();
 	virtual void CallFunction(const std::vector<std::string>& str_param);
-
+	virtual void CallFunctionWithCachedArguments();
 	
 
 	template<typename... T>
@@ -68,7 +68,12 @@ public:
 
 	}
 
+	template <typename... T>
+	void SetArguments()
+	{
+		FunctionTuple::apply_from_tuple(FPtr, arguments);
 
+	}
 
 	template<typename... T>
 	void operator()(T... A)
@@ -131,6 +136,12 @@ public:
 		FunctionTuple::to_string_for_each(arguments, out);
 		return  out;
 	};
+
+	virtual void CallFunctionWithCachedArguments() override 
+	{
+		FunctionTuple::apply_from_tuple(FPtr, arguments);
+	
+	}
 
 
 	virtual void CallFunction() override
@@ -251,6 +262,10 @@ public:
 				FunctionTuple::apply_from_tuple(*ptr, FPtr, args);
 			}
 		}
+	}
+	virtual void CallFunctionWithCachedArguments() override 
+	{
+		try_void_ptr(arguments);
 	}
 	virtual void CallFunction() override
 	{

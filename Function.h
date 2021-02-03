@@ -7,6 +7,7 @@
 #include "VirtualVariable.h"
 
 #define ReflectMember(V,CType,cl,F) 		V.Reflect_Member_Function(GenName(F),cl,&CType::F,{})
+#define ReflectMember_Name(V,CType,cl,name,F) 		V.Reflect_Member_Function(name,cl,&CType::F,{})
 #define ReflectGlobalStatic(V,F) 		V.Reflect_Static_Function(GenName(F),F,{})
 #define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{})
 class VirtualFunctionUtility

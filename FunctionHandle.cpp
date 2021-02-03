@@ -3,7 +3,11 @@
 
 
 void FunctionHandle::CallFunction() { std::cout << "not implemented \n"; };
-void FunctionHandle::CallFunction(const std::vector<std::string>& str_param) { std::cout << "not implemented \n"; };
+void FunctionHandle::CallFunction(const std::vector<std::string>& str_param) { std::cout << "not implemented \n"; }
+void FunctionHandle::CallFunctionWithCachedArguments()
+{
+}
+;
 void FunctionHandle::SetClass(void* ptr, size_t size)
 {
 	if (this->class_size != 0)//{
