@@ -97,6 +97,8 @@ public:
 	VirtualVaribleMap<bool> BoolMap;
 	VirtualVaribleMap<std::string> StringMap;
 
+	//mapping between the variables name, and the type (represented by an integer)
+	//without this, know what map to look in to return the value would be impossible
 	std::map<std::string, type_id> VariableNames;
 
 
@@ -250,7 +252,7 @@ public:
 
 	void print(std::string n)
 	{
-		std::cout << TryGet(n) << std::endl;;
+		std::cout << n << " = " << TryGet(n) << std::endl;;
 	}
 	//TODO add pointer/ref types in addition to value primitives
 

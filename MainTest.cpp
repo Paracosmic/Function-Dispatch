@@ -35,6 +35,9 @@ public:
 
 v_int static_variable = 12345;
 
+
+
+
 int main() 
 {
 	//container for maps
@@ -44,11 +47,10 @@ int main()
 	VirtualFunctionUtility v = VirtualFunctionUtility(p);
 
 
-
 	//Reflect static functions
 	ReflectGlobalStatic(v, static_test);
 	ReflectGlobalStatic(v, static_test_int);
-	size_t index = ReflectGlobalStatic(v, static_test_int_double);
+    ReflectGlobalStatic(v, static_test_int_double);
 	ReflectStatic(v, Foo, static_member_function);
 
 	//declare an instance of Foo
@@ -97,15 +99,15 @@ int main()
 	v.TryExecute("static_member_function");
  
 	//get a handle for the function with the index obtained when reflecting the function
-	FunctionHandle* cached_function = v.function_container[index].get();
-	cached_function->CallFunctionWithCachedArguments();
+	v.CacheFunction("static_test_int_double");
+
+
 	//Call function with previously parameters
 
 	//reflect this function
-	ReflectMember_Name(v, FunctionHandle, *cached_function,"cf", CallFunctionWithCachedArguments);
+//	ReflectMember_Name(v, FunctionHandle, *cached_function,"cf", CallFunctionWithCachedArguments);
 	//call the function 
-	v.TryExecute("cf");
-
+	v.TryExecute("static_test_int_double_cached");
 	//function command loop
 	//type the name of the function and the parameter values
 	while(true)

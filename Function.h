@@ -24,6 +24,10 @@ public:
 
 	Primitives& primitives;
 
+	//Not safe!
+	FunctionHandle* GetFunctionHandle(std::string name);
+
+	void CacheFunction(std::string name);
 
 	template< typename F, typename... Args>
 	size_t Reflect_Static_Function(std::string name, F f, const std::vector<std::string>& parameter_info = {})
