@@ -17,12 +17,14 @@ FunctionHandle* VirtualFunctionUtility::GetFunctionHandle(std::string name)
 
 void VirtualFunctionUtility::CacheFunction(std::string name)
 {
-	std::string name_temp = "@";
-	name_temp.append(name);
+	std::string set_args = ">";
+	std::string call_with_cached_args = "<";
+	set_args.append(name);
+	call_with_cached_args.append(name);
 	FunctionHandle* cached_function = GetFunctionHandle(name);
 	
-	ReflectMember_Name((*this), FunctionHandle, *cached_function, name.append("_cached"), CallFunctionWithCachedArguments);
-	ReflectMember_Name((*this), FunctionHandle, *cached_function, name_temp, SetArgs);
+	ReflectMember_Name((*this), FunctionHandle, *cached_function, call_with_cached_args, CallFunctionWithCachedArguments);
+	ReflectMember_Name((*this), FunctionHandle, *cached_function, set_args, SetArgs);
 };
 
 void VirtualFunctionUtility::PrintFunctions()

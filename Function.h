@@ -263,7 +263,7 @@ public:
 		//erase token[0] as it is no longer needed as a token
 
 		tokens.erase(tokens.begin());
-		if (command[0] == '@') {
+		if (command[0] == '>') {
 
 			
 			std::string com = "";

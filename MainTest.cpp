@@ -98,13 +98,13 @@ int main()
 
 	v.TryExecute("static_member_function");
  
-
-	v.CacheFunction("static_test_int_double");
+	for(auto& itr : v.function_map)
+	v.CacheFunction(itr.first);
 
 	//call the function that was cached by adding _cached
 
-	v.TryExecute("@static_test_int_double $a $b");
-	v.TryExecute("static_test_int_double_cached");
+	v.TryExecute(">static_test_int_double $a $b");
+	v.TryExecute("<static_test_int_double");
 	//function command loop
 	//type the name of the function and the parameter values
 	while(true)
