@@ -74,6 +74,7 @@ struct VirtualVaribleMap
 
 typedef int type_id;
 
+
 class Primitives
 {
 
@@ -198,8 +199,8 @@ public:
 
 	virtual std::string TryGet(std::string name)
 	{
-		if (!NameIsAvailable(name))
-		{
+		//if (!NameIsAvailable(name))
+		//{
 			auto itr = VariableNames.find(name);
 
 
@@ -208,7 +209,7 @@ public:
 			if (itr != VariableNames.end())
 
 				GetPrimitive(name,t);
-		}
+		//}
 
 		return "NULL";
 	};
@@ -307,7 +308,7 @@ public:
 				{
 
 
-					return std::to_string(*IntPtrMap.Get(name));
+					return std::to_string((int)IntPtrMap.Get(name));
 
 				}
 

@@ -150,6 +150,28 @@ public:
 
 	};
 	
+	std::string RemoveFirstToken(std::string line)
+	{
+		int index = 0;
+		for (auto& chr : line)
+		{
+			++index;
+			if (chr == ' ')
+			{
+
+				return line.substr(index, line.size());
+
+			}
+			
+		}
+
+		
+
+		return line;
+
+	};
+
+
 
 	void FindAndReplaceVirtualVariables(std::vector<std::string>& tokens)
 	{
@@ -238,9 +260,25 @@ public:
 		//token[0] is standard for the function name
 		//store this in a string for later
 		std::string name = tokens[0];
-
 		//erase token[0] as it is no longer needed as a token
+
 		tokens.erase(tokens.begin());
+		if (command[0] == '@') {
+
+			
+			std::string com = "";
+			
+			for (auto& itr : tokens)
+			{
+				com.append(itr).append(" ");
+			}
+			tokens.clear();
+			tokens = { com };
+
+			//	tokens.erase(tokens.begin());
+		}
+		
+	
 
 		//look for the function
 		auto found = function_map.find(name);

@@ -28,7 +28,7 @@ public:
 	virtual void CallFunction();
 	virtual void CallFunction(const std::vector<std::string>& str_param);
 	virtual void CallFunctionWithCachedArguments();
-	
+	virtual void SetArgs(std::string args);
 
 	template<typename... T>
 	const void ParseInput(T... A)
@@ -89,6 +89,33 @@ public:
 	virtual void GenerateInput();
 	virtual void SetFirstParam();
 	virtual std::string ToString();
+	//TODO move or find a more generic function
+	std::vector<std::string> Tokenize(std::string line)
+	{
+		std::vector<std::string> tokens;
+		std::string token = "";
+		for (auto& chr : line)
+		{
+			if (chr != ' ')
+			{
+				//	token.append(std::string(&chr));
+				token.push_back(chr);
+				//	token.append(&chr);
+			}
+			else {
+
+				tokens.push_back(token);
+				token = "";
+
+			}
+		}
+
+		tokens.push_back(token);
+
+		return tokens;
+
+	};
+
 };
 
 template<typename R, typename... Args>
@@ -101,13 +128,12 @@ public:
 
 	//	R return_value;
 
-	virtual void SetFirstParam() override
+
+
+	virtual void SetArgs(std::string args) override 
 	{
-
-
-
-	
-	};
+		arguments = FunctionTuple::function_args(Tokenize(args), FPtr);
+	}
 	virtual std::string ToString() override
 	{
 		std::string out = function_name;
@@ -220,6 +246,11 @@ public:
 	{
 		class_size = sizeof(CC);
 	};
+
+	virtual void SetArgs(std::string args) override
+	{
+		arguments = FunctionTuple::function_args(Tokenize(args), FPtr);
+	}
 	virtual std::string ToString() override
 	{
 		std::string out = function_name;

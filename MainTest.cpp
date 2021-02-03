@@ -46,15 +46,15 @@ int main()
 
 	VirtualFunctionUtility v = VirtualFunctionUtility(p);
 
-
+	//declare an instance of Foo
+	Foo f;
 	//Reflect static functions
 	ReflectGlobalStatic(v, static_test);
 	ReflectGlobalStatic(v, static_test_int);
     ReflectGlobalStatic(v, static_test_int_double);
 	ReflectStatic(v, Foo, static_member_function);
 
-	//declare an instance of Foo
-	Foo f;
+
 
 	//Reflect member functions
 	ReflectMember(v, Primitives, p, print);
@@ -98,15 +98,12 @@ int main()
 
 	v.TryExecute("static_member_function");
  
-	//get a handle for the function with the index obtained when reflecting the function
+
 	v.CacheFunction("static_test_int_double");
 
+	//call the function that was cached by adding _cached
 
-	//Call function with previously parameters
-
-	//reflect this function
-//	ReflectMember_Name(v, FunctionHandle, *cached_function,"cf", CallFunctionWithCachedArguments);
-	//call the function 
+	v.TryExecute("@static_test_int_double $a $b");
 	v.TryExecute("static_test_int_double_cached");
 	//function command loop
 	//type the name of the function and the parameter values
