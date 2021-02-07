@@ -5,8 +5,8 @@
 #include <string>
 #include <algorithm>
 #include <sstream> 
+#include <iostream>
 #define GenName(VariableName) # VariableName
-
 #define ReflectVariable(P, V) P.Add(GenName(V), V)
 
 template<typename T>
@@ -64,6 +64,7 @@ struct VirtualVaribleMap
 
 
 	T& Get(std::string name) { return **Map[name]; };
+	void Set(std::string name, T value) { **Map[name] = value; };
 };
 
 
@@ -213,6 +214,19 @@ public:
 
 		return "NULL";
 	};
+	virtual void TrySet(std::string name, std::string value)
+	{
+
+		auto itr = VariableNames.find(name);
+
+
+		int t = itr->second;
+
+		if (itr != VariableNames.end())
+
+			SetPrimitive(name, t,value);
+
+	};
 
 	std::string GetPrimitive(std::string name, type_id id) 
 	{
@@ -249,6 +263,44 @@ public:
 		default: {	return "NULL-GET"; }
 		}
 	
+	};
+
+	void SetPrimitive(std::string name, type_id id, std::string value)
+	{
+		switch (id)
+		{
+
+		case type_info::INT:
+		{
+			//	std::cout << std::endl;
+		IntMap.Set(name,std::stoi(value));
+
+			break;
+
+		}
+		case type_info::BOOL:
+		{
+		BoolMap.Set(name, std::stoi(value));
+			break;
+		}
+		case type_info::FLOAT:
+		{
+		FloatMap.Set(name, std::stof(value));
+			break;
+		}
+		case type_info::DOUBLE:
+		{
+		DoubleMap.Set(name, std::stod(value));
+			break;
+		}
+		case type_info::STRING:
+		{
+			StringMap.Set(name,value);
+			break;
+		}
+		default: {	std::cout << "Unsupported Type!"; }
+		}
+
 	};
 
 	void print(std::string n)

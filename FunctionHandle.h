@@ -22,7 +22,6 @@ public:
 	size_t parameter_count = 0;
 	//SMELLY
 	void* void_class_ptr = nullptr;
-	void* first_param_ptr = nullptr;
 
 	size_t class_size = 0;
 	virtual void CallFunction();
@@ -92,22 +91,38 @@ public:
 	//TODO move or find a more generic function
 	std::vector<std::string> Tokenize(std::string line)
 	{
+		bool is_string = false;
 		std::vector<std::string> tokens;
 		std::string token = "";
 		for (auto& chr : line)
 		{
-			if (chr != ' ')
+			if (chr == '"') {
+				is_string = !is_string;
+				//continue;
+			}
+
+			if (!is_string)
 			{
-				//	token.append(std::string(&chr));
+				if (chr != ' ')
+				{
+					//	token.append(std::string(&chr));
+					token.push_back(chr);
+					//	token.append(&chr);
+				}
+				else {
+
+					tokens.push_back(token);
+					token = "";
+
+				}
+			}
+			else
+			{
+
 				token.push_back(chr);
-				//	token.append(&chr);
-			}
-			else {
-
-				tokens.push_back(token);
-				token = "";
 
 			}
+
 		}
 
 		tokens.push_back(token);
@@ -116,13 +131,14 @@ public:
 
 	};
 
+	virtual size_t ParameterCount();
 };
 
 template<typename R, typename... Args>
 class MetaStaticFunctionData : public FunctionHandle
 {
 public:
-	R(*FPtr)(Args...);
+	R(*function_pointer)(Args...);
 	std::tuple<Args...> arguments;
 
 
@@ -130,17 +146,21 @@ public:
 
 
 
-	virtual void SetArgs(std::string args) override 
+	void SetArgs(std::string args) override 
 	{
-		arguments = FunctionTuple::function_args(Tokenize(args), FPtr);
+		arguments = FunctionTuple::function_args(Tokenize(args), function_pointer);
 	}
-	virtual std::string ToString() override
+	 std::string ToString() override
 	{
 		std::string out = function_name;
 		out.append(" : ");
 		std::vector<std::string> tokens; 
 		FunctionTuple::token_for_each(arguments, tokens);
 
+		if (ParameterCount() == 0)
+		{
+			out.append("NO_PARAMETERS");
+		}
 		if (Parameter_Info.size() == tokens.size())
 		{
 			
@@ -160,26 +180,27 @@ public:
 	
 
 		FunctionTuple::to_string_for_each(arguments, out);
+
 		return  out;
 	};
 
-	virtual void CallFunctionWithCachedArguments() override 
+	void CallFunctionWithCachedArguments() override 
 	{
-		FunctionTuple::apply_from_tuple(FPtr, arguments);
+		FunctionTuple::apply_from_tuple(function_pointer, arguments);
 	
 	}
 
 
-	virtual void CallFunction() override
+	void CallFunction() override
 	{
 
 		if (std::tuple_size<std::tuple<Args...>>::value == str_parameter.size())
 		{
 			//populate a tuple of f function parameters from a vector of parameters
 			//note: parameter types must match when converted from string
-			arguments = FunctionTuple::function_args(str_parameter, FPtr);
+			arguments = FunctionTuple::function_args(str_parameter, function_pointer);
 
-			FunctionTuple::apply_from_tuple(FPtr, arguments);
+			FunctionTuple::apply_from_tuple(function_pointer, arguments);
 		}
 		else
 		{
@@ -189,15 +210,15 @@ public:
 	};
 
 
-	virtual void CallFunction(const std::vector<std::string>& str_param) override
+	void CallFunction(const std::vector<std::string>& str_param) override
 	{
 
 		if (std::tuple_size<std::tuple<Args...>>::value == str_param.size())
 		{
 			//populate a tuple of f function parameters from a vector of parameters
 			//note: parameter types must match when converted from string
-			arguments = FunctionTuple::function_args(str_param, FPtr);
-			FunctionTuple::apply_from_tuple(FPtr, arguments);
+			arguments = FunctionTuple::function_args(str_param, function_pointer);
+			FunctionTuple::apply_from_tuple(function_pointer, arguments);
 		}
 		else
 		{
@@ -215,21 +236,24 @@ public:
 
 	R operator()(std::tuple<Args...> args)
 	{
-		return apply_from_tuple(FPtr, args);
+		return apply_from_tuple(function_pointer, args);
 	};
 
 
 	R operator()(Args... args)
 	{
-		return (*FPtr)(args...);
+		return (*function_pointer)(args...);
 	};
 
-	virtual void PrintFunction() override
+	void PrintFunction() override
 	{
-		std::cout << GetFName() << " (";
-	//	print_for_each(arguments);
-		std::cout << ")\n";
+		std::cout << ToString() << "\n";
 
+	};
+
+	size_t ParameterCount() override 
+	{
+		return std::tuple_size<	std::tuple<Args...>>();
 	};
 };
 
@@ -237,7 +261,7 @@ template<typename R, typename CC, typename... Args>
 class MetaFunctionData : public FunctionHandle
 {
 public:
-	R(CC::*FPtr)(Args...);
+	R(CC::*function_pointer)(Args...);
 	std::tuple<Args...> arguments;
 	//R return_value;
 	CC* class_object = nullptr;
@@ -247,16 +271,23 @@ public:
 		class_size = sizeof(CC);
 	};
 
-	virtual void SetArgs(std::string args) override
+	void SetArgs(std::string args) override
 	{
-		arguments = FunctionTuple::function_args(Tokenize(args), FPtr);
+		arguments = FunctionTuple::function_args(Tokenize(args), function_pointer);
 	}
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		std::string out = function_name;
 		out.append(" : ");
 		std::vector<std::string> tokens;
 		FunctionTuple::token_for_each(arguments, tokens);
+
+
+		if (ParameterCount() == 0)
+		{
+			out.append("NO_PARAMETERS");
+		}
+
 
 		if (Parameter_Info.size() == tokens.size())
 		{
@@ -282,7 +313,7 @@ public:
 
 
 
-	void try_void_ptr(std::tuple<Args...> args)
+	void TryVoidPointer(std::tuple<Args...> args)
 	{
 		if (void_class_ptr != nullptr)
 		{
@@ -290,24 +321,27 @@ public:
 			CC* ptr = static_cast<CC*>(void_class_ptr);
 
 			if (ptr != nullptr) {
-				FunctionTuple::apply_from_tuple(*ptr, FPtr, args);
+				FunctionTuple::apply_from_tuple(*ptr, function_pointer, args);
 			}
 		}
 	}
-	virtual void CallFunctionWithCachedArguments() override 
+
+	void CallFunctionWithCachedArguments() override 
 	{
-		try_void_ptr(arguments);
+		//TODO only need to do this once after each time you bind a member function to its owning class
+		TryVoidPointer(arguments);
 	}
-	virtual void CallFunction() override
+
+	void CallFunction() override
 	{
 
 		if (std::tuple_size<std::tuple<Args...>>::value == str_parameter.size())
 		{
 			//populate a tuple of f function parameters from a vector of parameters
 			//note: parameter types must match when converted from string
-			arguments = FunctionTuple::function_args(str_parameter, FPtr);
+			arguments = FunctionTuple::function_args(str_parameter, function_pointer);
 
-			try_void_ptr(arguments);
+			TryVoidPointer(arguments);
 			//	apply_f(*class_object, FPtr, arguments);
 		}
 		else
@@ -317,16 +351,16 @@ public:
 		}
 	};
 
-	virtual void CallFunction(const std::vector<std::string>& str_param) override
+	void CallFunction(const std::vector<std::string>& str_param) override
 	{
 
 		if (std::tuple_size<std::tuple<Args...>>::value == str_param.size())
 		{
 			//populate a tuple of f function parameters from a vector of parameters
 			//note: parameter types must match when converted from string
-			arguments = FunctionTuple::function_args(str_param, FPtr);
+			arguments = FunctionTuple::function_args(str_param, function_pointer);
 
-			try_void_ptr(arguments);
+			TryVoidPointer(arguments);
 			//	apply_f(*class_object, FPtr, arguments);
 		}
 		else
@@ -348,16 +382,12 @@ public:
 
 	};
 
-	void apply_tuple()
-	{
-		apply_f(*class_object, FPtr, arguments);
-		//apply_from_tuple(FPtr,arguments);
-	};
-	virtual void GenerateInput() override
+
+	void GenerateInput() override
 	{
 		FunctionTuple::generate_for_each(arguments);
 		//	apply_f(*(static_cast<CC*>(void_class_ptr)), FPtr, arguments);
-		try_void_ptr(arguments);
+		TryVoidPointer(arguments);
 	};
 
 	R operator()(Args... args)
@@ -365,12 +395,16 @@ public:
 		return (class_object->*FPtr)(args...);
 	};
 
-	virtual void PrintFunction() override
+	void PrintFunction() override
 	{
-		std::cout << GetFName() << " (";
-	//	print_for_each(arguments);
-		std::cout << ")\n";
+		std::cout <<  ToString() << "\n";
 
+
+	};
+
+	size_t ParameterCount() override
+	{
+		return std::tuple_size<	std::tuple<Args...>>();
 	};
 };
 

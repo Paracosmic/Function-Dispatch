@@ -1,9 +1,9 @@
 
 
-#include "Function.h"
+#include "VirtualFunctionUtility.h"
 #include "FunctionHandle.h"
 //
-#include "function.h"
+
 #include "Function_Tuple.h"
 #include "TupleString.h"
 #include "TransformArgument.h"
@@ -12,7 +12,7 @@
 #include <string>
 
 #include "VirtualVariable.h"
-
+#include <chrono>
 
 void static_test() { std::cout << "STATIC TEST FUNCTION SUCCESS" << std::endl; };
 void static_test_int(int i) { std::cout << "STATIC TEST FUNCTION SUCCESS " << i  << std::endl; };
@@ -30,10 +30,24 @@ public:
 	{
 		std::cout << "Static Member Function!" << std::endl;
 	};
+void caller_function(int ii, int x, double d, float f)
+{
+	int i = 10;
+	i = i * i;
+
+};
 
 };
 
 v_int static_variable = 12345;
+
+
+void say(std::string shout)
+{
+	std::cout << shout << "\n";
+}
+
+
 
 
 
@@ -48,15 +62,19 @@ int main()
 
 	//declare an instance of Foo
 	Foo f;
+	ReflectMember(v, Foo,f,caller_function);
 	//Reflect static functions
 	ReflectGlobalStatic(v, static_test);
 	ReflectGlobalStatic(v, static_test_int);
     ReflectGlobalStatic(v, static_test_int_double);
 	ReflectStatic(v, Foo, static_member_function);
-
+	ReflectGlobalStatic(v, say);
 
 
 	//Reflect member functions
+
+
+	ReflectMember(v, Primitives, p, TrySet);
 	ReflectMember(v, Primitives, p, print);
 	ReflectMember(v, VirtualFunctionUtility, v, PrintFunctions);
 
@@ -66,7 +84,7 @@ int main()
 	///try to execute function
 	//static
 	v.TryExecute("static_test");
-	v.TryExecute("static_test_int 1337");
+	v.TryExecute("static_test_int s");
 	//member
 	v.TryExecute("member_test");
 	v.TryExecute("member_test_int 1337");
@@ -105,6 +123,24 @@ int main()
 
 	v.TryExecute(">static_test_int_double $a $b");
 	v.TryExecute("<static_test_int_double");
+
+
+	for (int it = 0; it < 100; ++it)
+	{
+		//Time test
+		auto start = std::chrono::steady_clock::now();
+		std::string ss = "";
+		for (int i = 0; i < 10000; ++i)
+		{
+			v.TryExecute("caller_function $a $a $d $d");
+
+		}
+		auto end = std::chrono::steady_clock::now();
+
+		std::chrono::duration<double> elapsed_seconds = end - start;
+		std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+	}
+
 	//function command loop
 	//type the name of the function and the parameter values
 	while(true)

@@ -1,5 +1,5 @@
-#include "Function.h"
-#include "Function.h"
+#include "VirtualFunctionUtility.h"
+
 
 bool VirtualFunctionUtility::find(std::string& name)
 {
@@ -29,11 +29,29 @@ void VirtualFunctionUtility::CacheFunction(std::string name)
 
 void VirtualFunctionUtility::PrintFunctions()
 {
+	std::cout << "\n---------Functions--------\n\n";
 	for (auto itr : function_map)
 	{
 		//	std::cout << itr.first << " ";
-
+		if((itr.first)[0] != '<') // cached functions - filter out
+			if ((itr.first)[0] != '>') //set cache function parameters
 		itr.second->PrintFunction();
+	}
+	std::cout << "\n---------Cached Functions--------\n\n";
+
+	for (auto itr : function_map)
+	{
+
+		if ((itr.first)[0] == '<') // cached functions - filter out
+			itr.second->PrintFunction();
+	}
+	std::cout << "\n---------Cache Function Parameters--------\n\n";
+
+	for (auto itr : function_map)
+	{
+
+			if ((itr.first)[0] == '>') //set cache function parameters
+				itr.second->PrintFunction();
 	}
 };
 

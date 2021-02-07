@@ -7,22 +7,29 @@
 #include "VirtualVariable.h"
 
 #define ReflectMember(V,CType,cl,F) 		V.Reflect_Member_Function(GenName(F),cl,&CType::F,{})
+
 #define ReflectMember_Name(V,CType,cl,name,F) 		V.Reflect_Member_Function(name,cl,&CType::F,{})
+
 #define ReflectGlobalStatic(V,F) 		V.Reflect_Static_Function(GenName(F),F,{})
+
+
 #define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{})
+
 class VirtualFunctionUtility
 {
 public:
 
 	std::vector<std::shared_ptr<FunctionHandle>> function_container;
 	std::map<std::string, std::shared_ptr<FunctionHandle>> function_map;
+
+	//class for primitive virtual variables
+	Primitives& primitives;
+
+
 	VirtualFunctionUtility(Primitives& maptest) : primitives(maptest) {};
 
 	bool find(std::string& name);
 
-	
-
-	Primitives& primitives;
 
 	//Not safe!
 	FunctionHandle* GetFunctionHandle(std::string name);
@@ -44,27 +51,25 @@ public:
 	};
 
 
-
-
 	template< typename R, typename... Args>
 	size_t Reflect_Static_Function_impl(std::vector<std::shared_ptr<FunctionHandle>>& function_container, std::string name, R(*ptr)(Args...), const std::vector<std::string>& parameter_info)
 	{
 		//TODO PROPERLY HANDLE DELETION
 		auto f = new MetaStaticFunctionData< R, Args...>;
-		f->FPtr = ptr;
+		f->function_pointer = ptr;
 		function_container.emplace_back(std::move(f));
 
 		size_t index = function_container.size() - 1;
 
 		function_container[index]->function_name = name;
-		//function_container[index]->FPtr = ptr;
+
 		function_container[index]->parameter_count = std::tuple_size<std::tuple<Args...>>::value;
 
 		function_container[index]->Parameter_Info = parameter_info;
 
 
 		function_map[name] = function_container[index];
-		//shared_function_container.emplace_back(std::move(*itr));
+
 		return index;
 	};
 
@@ -74,20 +79,19 @@ public:
 	{
 		//TODO PROPERLY HANDLE DELETION
 		auto f = new MetaFunctionData< R, CC, Args...>;
-		f->FPtr = ptr;
+		f->function_pointer = ptr;
+
 		function_container.emplace_back(std::move(f));
 
 		size_t index = function_container.size() - 1;
 
 		function_container[index]->function_name = name;
 
-		//function_container[index]->FPtr = ptr;
+
 		function_container[index]->parameter_count = std::tuple_size<std::tuple<Args...>>::value;
 
 		function_container[index]->Parameter_Info = parameter_info;
-		//	std::cout << std::tuple_size<std::tuple<Args...>>::value << "  ";
-			//std::cout << sizeof(Args) << "  \n";
-		//	std::cout << sizeof(...) <<"\n";
+
 		function_map[name] = function_container[index];
 
 
@@ -121,27 +125,46 @@ public:
 		function_map[function_name]->ParseInput(args...);
 
 	};
+	std::string GetTokenString(std::string line) 
+	{
 
+	};
 
 	//TODO move or find a more generic function
 	std::vector<std::string> Tokenize(std::string line)
 	{
+		bool is_string = false;
 		std::vector<std::string> tokens;
 		std::string token = "";
 		for (auto& chr : line)
 		{
-			if (chr != ' ')
+			if (chr == '"') {
+				is_string = !is_string;
+				//continue;
+			}
+
+			if (!is_string)
 			{
-				//	token.append(std::string(&chr));
+				if (chr != ' ')
+				{
+					//	token.append(std::string(&chr));
+					token.push_back(chr);
+					//	token.append(&chr);
+				}
+				else {
+
+					tokens.push_back(token);
+					token = "";
+
+				}
+			}
+			else
+			{
+
 				token.push_back(chr);
-				//	token.append(&chr);
-			}
-			else {
-
-				tokens.push_back(token);
-				token = "";
 
 			}
+
 		}
 
 		tokens.push_back(token);
@@ -149,28 +172,6 @@ public:
 		return tokens;
 
 	};
-	
-	std::string RemoveFirstToken(std::string line)
-	{
-		int index = 0;
-		for (auto& chr : line)
-		{
-			++index;
-			if (chr == ' ')
-			{
-
-				return line.substr(index, line.size());
-
-			}
-			
-		}
-
-		
-
-		return line;
-
-	};
-
 
 
 	void FindAndReplaceVirtualVariables(std::vector<std::string>& tokens)
@@ -194,15 +195,28 @@ public:
 		}
 	
 	}
-	//deprecated
-	const void Execute(const std::string& command)
-	{
-		std::vector<std::string> tokens = Tokenize(command);
-		std::string name = tokens[0];
-		tokens.erase(tokens.begin());
-		function_map[name]->CallFunction(tokens);
 
-	};
+	static void FindAndReplaceVirtualVariables(Primitives& primitives, std::vector<std::string>& tokens)
+	{
+		//check each token
+		for (auto& token : tokens)
+		{
+			//is a virtual variable
+			if (token[0] == '$')
+			{
+				std::string var_name = token.substr(1, token.size());
+
+
+
+				token = primitives.TryGet(var_name);
+
+				//	std::cout << "";
+
+
+			}
+		}
+
+	}
 	/*
 	ret : true if executed, false if invalid
 	param0 : name of function
@@ -263,6 +277,7 @@ public:
 		//erase token[0] as it is no longer needed as a token
 
 		tokens.erase(tokens.begin());
+	
 		if (command[0] == '>') {
 
 			

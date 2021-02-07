@@ -1,5 +1,6 @@
 #include "FunctionHandle.h"
 #include "FunctionHandle.h"
+#include "FunctionHandle.h"
 #pragma once
 #include "FunctionHandle.h"
 
@@ -31,4 +32,9 @@ void FunctionHandle::PrintFunction() { std::cout << "not implemented \n"; };
 
 void FunctionHandle::GenerateInput() { std::cout << "not implemented \n"; };
 void FunctionHandle::SetFirstParam() {};
-std::string FunctionHandle::ToString() { return ""; };
+std::string FunctionHandle::ToString() { return ""; }
+size_t FunctionHandle::ParameterCount()
+{
+	return 0;
+}
+;

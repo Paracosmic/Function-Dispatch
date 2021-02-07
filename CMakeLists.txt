@@ -46,8 +46,9 @@ ToString.h
 TransformArgument.h
 TupleString.h
 TupleUtility.h
-Function.cpp
-Function.h
+VirtualVariable.h
+VirtualFunctionUtility.cpp
+VirtualFunctionUtility.h
 Function_Tuple.h 
 FunctionHandle.cpp
 )
