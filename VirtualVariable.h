@@ -208,8 +208,7 @@ public:
 			int t = itr->second;
 
 			if (itr != VariableNames.end())
-
-				GetPrimitive(name,t);
+				return GetPrimitive(name,t);
 		//}
 
 		return "NULL";
@@ -223,7 +222,6 @@ public:
 		int t = itr->second;
 
 		if (itr != VariableNames.end())
-
 			SetPrimitive(name, t,value);
 
 	};

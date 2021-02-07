@@ -131,12 +131,12 @@ public:
 	};
 
 	//TODO move or find a more generic function
-	std::vector<std::string> Tokenize(std::string line)
+	std::vector<std::string> Tokenize(const std::string& line)
 	{
 		bool is_string = false;
 		std::vector<std::string> tokens;
 		std::string token = "";
-		for (auto& chr : line)
+		for (const auto& chr : line)
 		{
 			if (chr == '"') {
 				is_string = !is_string;
