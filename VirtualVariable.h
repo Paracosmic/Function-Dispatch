@@ -76,6 +76,8 @@ struct VirtualVaribleMap
 typedef int type_id;
 
 
+
+
 class Primitives
 {
 
@@ -90,8 +92,15 @@ public:
 		static const type_id DOUBLE = 2;
 		static const type_id BOOL = 3;
 		static const type_id STRING = 4;
+		static const type_id LONG_INT = 5;
 	};
-
+	template<class T> static type_id GetTypeID(T type);
+	template<> static type_id GetTypeID(int type) { return type_info::INT; };
+	template<> static type_id GetTypeID(double type) { return type_info::DOUBLE; };
+	template<> static type_id GetTypeID(std::string type) { return type_info::STRING; };
+	template<> static type_id GetTypeID(bool type) { return type_info::BOOL; };
+	template<> static type_id GetTypeID(float type) { return type_info::FLOAT; };
+	template<> static type_id GetTypeID(long int type) { return type_info::LONG_INT; };
 	//primitives pre-defined
 	VirtualVaribleMap<int> IntMap;
 	VirtualVaribleMap<float> FloatMap;
@@ -200,29 +209,26 @@ public:
 
 	virtual std::string TryGet(std::string name)
 	{
-		//if (!NameIsAvailable(name))
-		//{
-			auto itr = VariableNames.find(name);
-
-
-			int t = itr->second;
+			const auto itr = VariableNames.find(name);
+			type_id i= itr->second;
 
 			if (itr != VariableNames.end())
-				return GetPrimitive(name,t);
-		//}
+				return GetPrimitive(name,i);
 
 		return "NULL";
 	};
+
+
 	virtual void TrySet(std::string name, std::string value)
 	{
 
 		auto itr = VariableNames.find(name);
 
 
-		int t = itr->second;
+		type_id i = itr->second;
 
 		if (itr != VariableNames.end())
-			SetPrimitive(name, t,value);
+			SetPrimitive(name, i,value);
 
 	};
 
@@ -233,30 +239,23 @@ public:
 
 		case type_info::INT:
 		{
-			//	std::cout << std::endl;
 			return std::to_string(IntMap.Get(name));
-			break;
-
 		}
 		case type_info::BOOL:
 		{
 			return std::to_string(BoolMap.Get(name));
-			break;
 		}
 		case type_info::FLOAT:
 		{
-			return std::to_string(FloatMap.Get(name));
-			break;
+			return std::to_string(FloatMap.Get(name));		
 		}
 		case type_info::DOUBLE:
 		{
 			return std::to_string(DoubleMap.Get(name));
-			break;
 		}
 		case type_info::STRING:
 		{
 			return StringMap.Get(name);
-			break;
 		}
 		default: {	return "NULL-GET"; }
 		}
@@ -272,9 +271,7 @@ public:
 		{
 			//	std::cout << std::endl;
 		IntMap.Set(name,std::stoi(value));
-
 			break;
-
 		}
 		case type_info::BOOL:
 		{

@@ -21,10 +21,13 @@ public:
 	template<class...Ts, std::size_t...Is>
 	static bool is_tuple_string(std::tuple<Ts...> & tuple, std::index_sequence<Is...>) {
 		bool is_true = true;
+
 		using expander = int[];
 		expander{
-			0, (is_true = is_true && IsString(std::get<Is>(tuple)) , 0)...
+			0, ( is_true = is_true && IsString(std::get<Is>(tuple)) , 0)...
 		};
+
+
 		return is_true;
 	}
 
