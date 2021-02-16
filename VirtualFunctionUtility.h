@@ -15,6 +15,7 @@
 
 #define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{})
 
+template<typename VirtualVariableTemplateType>
 class VirtualFunctionUtility
 {
 public:
@@ -23,18 +24,17 @@ public:
 	std::map<std::string, std::shared_ptr<FunctionHandle>> function_map;
 
 	//class for primitive virtual variables
-	Primitives& primitives;
+	VirtualVariableTemplateType& primitives;
 
+	
+	VirtualFunctionUtility(VirtualVariableTemplateType& maptest) : primitives(maptest) {};
 
-	VirtualFunctionUtility(Primitives& maptest) : primitives(maptest) {};
-
-	bool find(std::string& name);
-
+//	bool find(std::string& name);
 
 	//Not safe!
-	FunctionHandle* GetFunctionHandle(std::string name);
+//	FunctionHandle* GetFunctionHandle(std::string name);
 
-	void CacheFunction(std::string name);
+//	void CacheFunction(std::string name);
 
 	template< typename F, typename... Args>
 	size_t Reflect_Static_Function(std::string name, F f, const std::vector<std::string>& parameter_info = {})
@@ -95,7 +95,7 @@ public:
 		function_map[name] = function_container[index];
 
 
-		BindClass(&c, sizeof(c), name);
+		this->BindClass(&c, sizeof(c), name);
 
 
 		return index;
@@ -103,10 +103,10 @@ public:
 
 
 
-	void PrintFunctions();
+//	void PrintFunctions();
 
 	//binds the class object to the virtualized member function
-	void BindClass(void * ptr, size_t size, std::string function_name);
+//	void BindClass(void * ptr, size_t size, std::string function_name);
 
 
 	template <typename... T>
@@ -185,8 +185,8 @@ public:
 				std::string var_name = token.substr(1,token.size());
 
 
-
-				token = primitives.TryGet(var_name);
+				
+				token = primitives.GetPrimitive(var_name);
 
 			//	std::cout << "";
 
@@ -196,27 +196,27 @@ public:
 	
 	}
 
-	static void FindAndReplaceVirtualVariables(Primitives& primitives, std::vector<std::string>& tokens)
-	{
-		//check each token
-		for (auto& token : tokens)
-		{
-			//is a virtual variable
-			if (token[0] == '$')
-			{
-				std::string var_name = token.substr(1, token.size());
+	//static void FindAndReplaceVirtualVariables(Primitives& primitives, std::vector<std::string>& tokens)
+	//{
+	//	//check each token
+	//	for (auto& token : tokens)
+	//	{
+	//		//is a virtual variable
+	//		if (token[0] == '$')
+	//		{
+	//			std::string var_name = token.substr(1, token.size());
 
 
 
-				token = primitives.TryGet(var_name);
+	//		//	token = primitives.TryGet(var_name);
 
-				//	std::cout << "";
+	//			//	std::cout << "";
 
 
-			}
-		}
+	//		}
+	//	}
 
-	}
+	//}
 	/*
 	ret : true if executed, false if invalid
 	param0 : name of function
@@ -315,6 +315,66 @@ public:
 			std::cout << errout;
 		}
 		return false;
+	};
+
+	bool VirtualFunctionUtility::find(std::string& name)
+	{
+		auto to_find = function_map.find(name);
+
+		return 	(to_find != function_map.end());
+
+	}
+
+	FunctionHandle* VirtualFunctionUtility::GetFunctionHandle(std::string name)
+	{
+
+		return function_map[name].get();
+	};
+
+
+	void VirtualFunctionUtility::CacheFunction(std::string name)
+	{
+		std::string set_args = ">";
+		std::string call_with_cached_args = "<";
+		set_args.append(name);
+		call_with_cached_args.append(name);
+		FunctionHandle* cached_function = GetFunctionHandle(name);
+
+		ReflectMember_Name((*this), FunctionHandle, *cached_function, call_with_cached_args, CallFunctionWithCachedArguments);
+		ReflectMember_Name((*this), FunctionHandle, *cached_function, set_args, SetArgs);
+	};
+
+	void VirtualFunctionUtility::PrintFunctions()
+	{
+		std::cout << "\n---------Functions--------\n\n";
+		for (auto itr : function_map)
+		{
+			//	std::cout << itr.first << " ";
+			if ((itr.first)[0] != '<') // cached functions - filter out
+				if ((itr.first)[0] != '>') //set cache function parameters
+					itr.second->PrintFunction();
+		}
+		std::cout << "\n---------Cached Functions--------\n\n";
+
+		for (auto itr : function_map)
+		{
+
+			if ((itr.first)[0] == '<') // cached functions - filter out
+				itr.second->PrintFunction();
+		}
+		std::cout << "\n---------Cache Function Parameters--------\n\n";
+
+		for (auto itr : function_map)
+		{
+
+			if ((itr.first)[0] == '>') //set cache function parameters
+				itr.second->PrintFunction();
+		}
+	};
+
+	void VirtualFunctionUtility::BindClass(void* ptr, size_t size, std::string function_name)
+	{
+		this->function_map[function_name]->SetClass(ptr, size);
 	};
 
 };

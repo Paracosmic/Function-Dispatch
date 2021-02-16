@@ -66,53 +66,89 @@ struct VirtualVaribleMap
 	T& Get(std::string name) { return **Map[name]; };
 	void Set(std::string name, T value) { **Map[name] = value; };
 };
-
-
-
-//bad name
-
-//allows for setting values and binding variables to one another through the console via string tokens
-
 typedef int type_id;
-
-
-
-
-class Primitives
+static struct type_info_v
 {
+	static const type_id INT = 0;
+	static const type_id FLOAT = 1;
+	static const type_id DOUBLE = 2;
+	static const type_id BOOL = 3;
+	static const type_id STRING = 4;
+	static const type_id LONG_INT = 5;
+};
 
-public:
+template<class T> static type_id GetTypeID(T type);
+template<> static type_id GetTypeID(int type) { return type_info_v::INT; };
+template<> static type_id GetTypeID(double type) { return type_info_v::DOUBLE; };
+template<> static type_id GetTypeID(std::string type) { return type_info_v::STRING; };
+template<> static type_id GetTypeID(bool type) { return type_info_v::BOOL; };
+template<> static type_id GetTypeID(float type) { return type_info_v::FLOAT; };
+template<> static type_id GetTypeID(long int type) { return type_info_v::LONG_INT; };
+
+
+//string to value actually
+template<class T> static T string_to_type(std::string value, T type);
+template<> static int string_to_type(std::string value, int type) { return std::stoi(value); };
+template<> static double string_to_type(std::string value, double type) { return std::stod(value); };
+template<> static std::string string_to_type(std::string value, std::string type) { return value; };
+template<> static bool string_to_type(std::string value, bool type) { return std::stoi(value); };
+template<> static float string_to_type(std::string value, float type) { return std::stof(value); };
+template<> static long int string_to_type(std::string value, long int type) { return std::stoi(value); };
+
+struct VirtualVariableMapGetSet
+{
+	virtual std::string Get(std::string name) = 0;
+	virtual void Set(std::string name, std::string value) = 0;
+};
+//template boiler-plate that recurses through each type and inherits from that type into a base<type> template that implements functions/maps 
+template <typename First, typename... Rest>
+struct VirtualVaribleMapBase : public VirtualVaribleMapBase<First>, public VirtualVaribleMapBase<Rest...> {
+	//functions to generate for each type
+	using VirtualVaribleMapBase<First>::Add;
+	using VirtualVaribleMapBase<Rest...>::Add;
+	using VirtualVaribleMapBase<First>::Get;
+	using VirtualVaribleMapBase<Rest...>::Get;
+	using VirtualVaribleMapBase<First>::Set;
+	using VirtualVaribleMapBase<Rest...>::Set;
+
+};
+
+//class template for generated type
+template <typename First>
+struct VirtualVaribleMapBase<First> {
+
+	//each type gets a variable map of its type
+	VirtualVaribleMap<First> Map;
 
 
 
-	static struct type_info
+	void Add(std::string name, VirtualVarible<First>& type, std::map<std::string, int>& VariableNames)
 	{
-		static const type_id INT = 0;
-		static const type_id FLOAT = 1;
-		static const type_id DOUBLE = 2;
-		static const type_id BOOL = 3;
-		static const type_id STRING = 4;
-		static const type_id LONG_INT = 5;
+		type.Name = name;
+		VariableNames.emplace(name, GetTypeID(type.Default));
+		VirtualVaribleMapBase<First>::Map.Add(name, type);
 	};
-	template<class T> static type_id GetTypeID(T type);
-	template<> static type_id GetTypeID(int type) { return type_info::INT; };
-	template<> static type_id GetTypeID(double type) { return type_info::DOUBLE; };
-	template<> static type_id GetTypeID(std::string type) { return type_info::STRING; };
-	template<> static type_id GetTypeID(bool type) { return type_info::BOOL; };
-	template<> static type_id GetTypeID(float type) { return type_info::FLOAT; };
-	template<> static type_id GetTypeID(long int type) { return type_info::LONG_INT; };
-	//primitives pre-defined
-	VirtualVaribleMap<int> IntMap;
-	VirtualVaribleMap<float> FloatMap;
-	VirtualVaribleMap<double> DoubleMap;
-	VirtualVaribleMap<bool> BoolMap;
-	VirtualVaribleMap<std::string> StringMap;
 
-	//mapping between the variables name, and the type (represented by an integer)
-	//without this, know what map to look in to return the value would be impossible
-	std::map<std::string, type_id> VariableNames;
+	std::string Get(std::string name)
+	{
+		return std::to_string(VirtualVaribleMapBase<First>::Map.Get(name));
+	};
 
+	void Set(std::string name, First value)
+	{
+		VirtualVaribleMapBase<First>::Map.Set(name, value);
+	};
+};
 
+//Helper class 
+template <typename First, typename... Rest>
+struct VirtualVariableTemplate
+{
+	std::tuple<First, Rest...> types; // all types to be reflected
+	VirtualVaribleMapBase<First, Rest...> BaseMap; //template that generates a base class with a map to each type
+	std::map<std::string, int> VariableNames; //a map of names and types represented as an integer(int)
+
+	//Is this name available?
 	bool NameIsAvailable(std::string name)
 	{
 		auto itr = VariableNames.find(name);
@@ -124,253 +160,126 @@ public:
 		return false;
 	};
 
-
-	void Add(std::string name, int* type)
-	{
-		if (NameIsAvailable(name)) {
-			this->IntMap.Add(name, type);
-			VariableNames.emplace(name, type_info::INT);
-		}
-	};
-	void Add(std::string name, double* type)
+	template<typename T>
+	void Add(std::string name, VirtualVarible<T>& type)
 	{
 		if (NameIsAvailable(name))
 		{
-			this->DoubleMap.Add(name, type);
-			VariableNames.emplace(name, type_info::DOUBLE);
-		}
-	};
-	void Add(std::string name, std::string* type)
-	{
-		if (NameIsAvailable(name)) {
-			this->StringMap.Add(name, type);
-			VariableNames.emplace(name, type_info::STRING);
-		}
-	};
-	void Add(std::string name, bool* type)
-	{
-		if (NameIsAvailable(name)) {
-			this->BoolMap.Add(name, type);
-			VariableNames.emplace(name, type_info::BOOL);
-		}
-	};
-	void Add(std::string name, float* type)
-	{
-		if (NameIsAvailable(name)) {
-			this->FloatMap.Add(name, type);
-			VariableNames.emplace(name, type_info::FLOAT);
-
-		}
-	};
-	//
-
-
-	void Add(std::string name, v_int& type)
-	{
-		if (NameIsAvailable(name)) {
-			type.Name = name;
-			VariableNames.emplace(name, type_info::INT);
-			this->IntMap.Add(name, type);
-
-		}
-	};
-	void Add(std::string name, v_double& type)
-	{
-		if (NameIsAvailable(name))
-		{
-			this->DoubleMap.Add(name, type);
-			VariableNames.emplace(name, type_info::DOUBLE);
+			BaseMap.VirtualVaribleMapBase<T>::Add(name, type, VariableNames);
 		}
 	};
 
-	void Add(std::string name, v_bool& type)
-	{
-		if (NameIsAvailable(name)) {
-			this->BoolMap.Add(name, type);
-			VariableNames.emplace(name, type_info::BOOL);
-		}
-	};
-	void Add(std::string name, v_float& type)
-	{
-		if (NameIsAvailable(name)) {
-			this->FloatMap.Add(name, type);
-			VariableNames.emplace(name, type_info::FLOAT);
 
-		}
-	};
 
-	void Add(std::string name, v_string& type)
+
+	template<typename T>
+	static void CheckType(VirtualVariableTemplate* explicit_this, std::string name, int target, T var, std::string& to_return)
 	{
-		if (NameIsAvailable(name)) {
-			this->StringMap.Add(name, type);
-			VariableNames.emplace(name, type_info::STRING);
-		}
+		//if this is the type we are looking for
+		if (target == GetTypeID(var))
+		{
+			//set the to_return string to the to_string value 
+			to_return = explicit_this->BaseMap.VirtualVaribleMapBase<T>::Get(name);
+
+
+
+		};
 	};
 
-	virtual std::string TryGet(std::string name)
-	{
-			const auto itr = VariableNames.find(name);
-			type_id i= itr->second;
+	template<class...Ts, std::size_t...Is>
+	static std::string FindPrimitiveType(VirtualVariableTemplate* explicit_this, std::string name, int target, std::tuple<Ts...>& tuple, std::index_sequence<Is...>) {
 
-			if (itr != VariableNames.end())
-				return GetPrimitive(name,i);
-
-		return "NULL";
-	};
+		std::string to_return = "";
+		using expander = int[];
+		expander{
+			0, (CheckType(explicit_this,name,target,std::get<Is>(tuple),to_return), 0)...
+		};
 
 
-	virtual void TrySet(std::string name, std::string value)
-	{
-
-		auto itr = VariableNames.find(name);
-
-
-		type_id i = itr->second;
-
-		if (itr != VariableNames.end())
-			SetPrimitive(name, i,value);
-
-	};
-
-	std::string GetPrimitive(std::string name, type_id id) 
-	{
-		switch (id)
-		{
-
-		case type_info::INT:
-		{
-			return std::to_string(IntMap.Get(name));
-		}
-		case type_info::BOOL:
-		{
-			return std::to_string(BoolMap.Get(name));
-		}
-		case type_info::FLOAT:
-		{
-			return std::to_string(FloatMap.Get(name));		
-		}
-		case type_info::DOUBLE:
-		{
-			return std::to_string(DoubleMap.Get(name));
-		}
-		case type_info::STRING:
-		{
-			return StringMap.Get(name);
-		}
-		default: {	return "NULL-GET"; }
-		}
-	
-	};
-
-	void SetPrimitive(std::string name, type_id id, std::string value)
-	{
-		switch (id)
-		{
-
-		case type_info::INT:
-		{
-			//	std::cout << std::endl;
-		IntMap.Set(name,std::stoi(value));
-			break;
-		}
-		case type_info::BOOL:
-		{
-		BoolMap.Set(name, std::stoi(value));
-			break;
-		}
-		case type_info::FLOAT:
-		{
-		FloatMap.Set(name, std::stof(value));
-			break;
-		}
-		case type_info::DOUBLE:
-		{
-		DoubleMap.Set(name, std::stod(value));
-			break;
-		}
-		case type_info::STRING:
-		{
-			StringMap.Set(name,value);
-			break;
-		}
-		default: {	std::cout << "Unsupported Type!"; }
-		}
-
-	};
-
-	void print(std::string n)
-	{
-		std::cout << n << " = " << TryGet(n) << std::endl;;
+		return to_return;
 	}
-	//TODO add pointer/ref types in addition to value primitives
+
+	template<class...Ts>
+	static std::string FindPrimitiveType(VirtualVariableTemplate* explicit_this, std::string name, int target, std::tuple<Ts...>& tuple) {
+		return FindPrimitiveType(explicit_this, name, target, tuple, std::make_index_sequence<sizeof...(Ts)>());
+	}
+	///
 
 
 
-};
 
 
-typedef VirtualVarible<int*> v_int_ptr;
-//Test Class for expanding primitives WIP
-class Test : public Primitives
-{
-public:
-	VirtualVaribleMap<int*> IntPtrMap;
-
-	static struct type_info : public Primitives::type_info
+	//safe
+	std::string GetPrimitive(std::string name)
 	{
-		static const type_id INT_PTR = 5;
-	};
+		auto itr = VariableNames.find(name);
+		if (itr != VariableNames.end()) {
 
 
-	template <typename T>
-	void Add(std::string name, T& type)
-	{
-		Primitives::Add(name,type);
-	};
 
-	void Add(std::string name, v_int_ptr& type)
-	{
-		if (NameIsAvailable(name)) {
-			type.Name = name;
-			VariableNames.emplace(name, type_info::INT_PTR);
-			this->IntPtrMap.Add(name, type);
-
+			return FindPrimitiveType(this, name, itr->second, types);
 		}
-	};
-
-	virtual std::string TryGet(std::string name) override
-	{
-		if (!NameIsAvailable(name))
+		else
 		{
-			auto itr = VariableNames.find(name);
-
-
-			int id = itr->second;
-
-			if (itr != VariableNames.end())
-				switch (id)
-				{
-
-				case type_info::INT_PTR:
-				{
-
-
-					return std::to_string((int)IntPtrMap.Get(name));
-
-				}
-
-
-				default:
-				{
-
-					return GetPrimitive(name, id);
-				}
-
-
-				}
+			return "NOT-FOUND";
 		}
+	};
+	///----------
 
-		return "NULL";
+	template<typename T>
+	static void SetType(VirtualVariableTemplate* explicit_this, std::string name, std::string value, int target, T var)
+	{
+
+		//if this is the type we are looking for
+		if (target == GetTypeID(var))
+		{
+			//set the to_return string to the to_string value 
+			auto t = string_to_type(value, var);
+			explicit_this->BaseMap.VirtualVaribleMapBase<T>::Set(name, t);
+
+		};
 	};
 
+
+	template<class...Ts, std::size_t...Is>
+	static void SetPrimitiveType(VirtualVariableTemplate* explicit_this, std::string name, std::string value, int target, std::tuple<Ts...>& tuple, std::index_sequence<Is...>) {
+
+
+		using expander = int[];
+		expander{
+			0, (SetType(explicit_this,name,value,target,std::get<Is>(tuple)), 0)...
+		};
+
+
+
+	}
+
+	template<class...Ts>
+	static void SetPrimitiveType(VirtualVariableTemplate* explicit_this, std::string name, std::string value, int target, std::tuple<Ts...>& tuple) {
+		SetPrimitiveType(explicit_this, name, value, target, tuple, std::make_index_sequence<sizeof...(Ts)>());
+	}
+
+
+
+
+
+	void SetPrimitive(std::string name, std::string value)
+	{
+		auto itr = VariableNames.find(name);
+		if (itr != VariableNames.end()) {
+
+			SetPrimitiveType(this, name, value, itr->second, types);
+		}
+		else
+		{
+
+		}
+
+	}
 };
+
+
+
+
+
+
