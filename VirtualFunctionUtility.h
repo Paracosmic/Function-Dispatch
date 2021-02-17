@@ -12,30 +12,21 @@
 
 #define ReflectGlobalStatic(V,F) 		V.Reflect_Static_Function(GenName(F),F,{})
 
-
 #define ReflectStatic(V,CType,F) 		V.Reflect_Static_Function(GenName(F),&CType::F,{})
 
-template<typename VirtualVariableTemplateType>
-class VirtualFunctionUtility
+template<typename... T>
+class VirtualFunctionUtility : public VirtualVariableTemplate<T...>
 {
 public:
 
+	typedef VirtualVariableTemplate<T...> VariableMap;
+
+	VariableMap& GetVariableMapClass() { return *this; };
+
+
 	std::vector<std::shared_ptr<FunctionHandle>> function_container;
 	std::map<std::string, std::shared_ptr<FunctionHandle>> function_map;
-
-	//class for primitive virtual variables
-	VirtualVariableTemplateType& primitives;
-
-	
-	VirtualFunctionUtility(VirtualVariableTemplateType& maptest) : primitives(maptest) {};
-
-//	bool find(std::string& name);
-
-	//Not safe!
-//	FunctionHandle* GetFunctionHandle(std::string name);
-
-//	void CacheFunction(std::string name);
-
+\
 	template< typename F, typename... Args>
 	size_t Reflect_Static_Function(std::string name, F f, const std::vector<std::string>& parameter_info = {})
 	{
@@ -103,10 +94,6 @@ public:
 
 
 
-//	void PrintFunctions();
-
-	//binds the class object to the virtualized member function
-//	void BindClass(void * ptr, size_t size, std::string function_name);
 
 
 	template <typename... T>
@@ -131,7 +118,7 @@ public:
 	};
 
 	//TODO move or find a more generic function
-	std::vector<std::string> Tokenize(const std::string& line)
+	static std::vector<std::string> Tokenize(const std::string& line)
 	{
 		bool is_string = false;
 		std::vector<std::string> tokens;
@@ -186,7 +173,7 @@ public:
 
 
 				
-				token = primitives.GetPrimitive(var_name);
+				token = GetPrimitive(var_name);
 
 			//	std::cout << "";
 
@@ -196,27 +183,7 @@ public:
 	
 	}
 
-	//static void FindAndReplaceVirtualVariables(Primitives& primitives, std::vector<std::string>& tokens)
-	//{
-	//	//check each token
-	//	for (auto& token : tokens)
-	//	{
-	//		//is a virtual variable
-	//		if (token[0] == '$')
-	//		{
-	//			std::string var_name = token.substr(1, token.size());
 
-
-
-	//		//	token = primitives.TryGet(var_name);
-
-	//			//	std::cout << "";
-
-
-	//		}
-	//	}
-
-	//}
 	/*
 	ret : true if executed, false if invalid
 	param0 : name of function
@@ -376,5 +343,18 @@ public:
 	{
 		this->function_map[function_name]->SetClass(ptr, size);
 	};
+
+
+	void print(std::string var) 
+	{
+		std::cout << GetPrimitive(var) << "\n";
+	
+	}
+
+	void SetPrimitiveCommand(std::string name, std::string value)
+	{
+		SetPrimitive(name, value);
+	}
+
 
 };

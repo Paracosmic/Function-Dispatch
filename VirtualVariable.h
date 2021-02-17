@@ -113,6 +113,10 @@ struct VirtualVaribleMapBase : public VirtualVaribleMapBase<First>, public Virtu
 
 };
 
+template<typename T>
+static  const std::string As_String(T& val) { return std::to_string(val); };
+template<>
+static const std::string As_String(std::string &val) { return val; };
 //class template for generated type
 template <typename First>
 struct VirtualVaribleMapBase<First> {
@@ -131,8 +135,13 @@ struct VirtualVaribleMapBase<First> {
 
 	std::string Get(std::string name)
 	{
-		return std::to_string(VirtualVaribleMapBase<First>::Map.Get(name));
+		
+		return As_String(VirtualVaribleMapBase<First>::Map.Get(name));
 	};
+
+
+
+
 
 	void Set(std::string name, First value)
 	{
@@ -178,8 +187,11 @@ struct VirtualVariableTemplate
 		//if this is the type we are looking for
 		if (target == GetTypeID(var))
 		{
+			
 			//set the to_return string to the to_string value 
+	
 			to_return = explicit_this->BaseMap.VirtualVaribleMapBase<T>::Get(name);
+			
 
 
 
@@ -204,6 +216,7 @@ struct VirtualVariableTemplate
 		return FindPrimitiveType(explicit_this, name, target, tuple, std::make_index_sequence<sizeof...(Ts)>());
 	}
 	///
+
 
 
 
@@ -276,6 +289,10 @@ struct VirtualVariableTemplate
 		}
 
 	}
+
+	
+
+
 };
 
 
